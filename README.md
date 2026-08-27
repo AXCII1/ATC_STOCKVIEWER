@@ -21,35 +21,39 @@ If real-time intraday volume genuinely matters for this project, that needs a di
 Sign up free at https://finnhub.io/register — no card required.
 
 2. Install on the Pi
-bash
+``` bash
 sudo apt update
-sudo apt install -y python3-pip python3-venv chromium-browser unclutter
-
+sudo apt install -y python3-pip python3-venv chromium-browser unclutter 
+``` 
 # copy this stocktick/ folder onto the Pi, then:
+```
 cd stocktick
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+``` 
 3. Configure
 
 Edit config.py to set your ticker list (TICKERS), and set your API key as an environment variable rather than hardcoding it:
 
-bash
+``` bash
 echo 'export FINNHUB_API_KEY="your_key_here"' >> ~/.bashrc
 source ~/.bashrc
+```
+
 4. Run it manually first to confirm it works
-bash
+``` bash
 source venv/bin/activate
 export FINNHUB_API_KEY="your_key_here"
 python3 app.py
-
+```
 Visit http://<pi-ip>:5000 from another device on the network to check it before wiring up kiosk mode.
 
 5. Auto-start the server on boot (systemd)
 
 Create /etc/systemd/system/stocktick.service:
 
-ini
+```
 [Unit]
 Description=Stock Dashboard
 After=network-online.target
@@ -65,19 +69,23 @@ RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
-bash
+```
+
+```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now stocktick.service
 sudo systemctl status stocktick.service   # confirm it's running
+``` 
 6. Auto-start Chromium in kiosk mode pointed at the dashboard
 
 Add to ~/.config/lxsession/LXDE-pi/autostart (create the folder if it doesn't exist):
-
+```
 @xset s off
 @xset -dpms
 @xset s noblank
 @unclutter -idle 0.5 -root
 @chromium-browser --noerrdialogs --disable-infobars --kiosk http://localhost:5000
+```
 
 Reboot the Pi (sudo reboot) and it should come up straight into the dashboard.
 
